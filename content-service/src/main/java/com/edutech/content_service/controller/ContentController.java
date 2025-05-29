@@ -53,8 +53,15 @@ public class ContentController {
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateContent(
             @PathVariable Long id,
-            @RequestBody Content request) {
-        boolean replaced = service.replace(id, request);
+            @Valid @RequestBody AddContentRequest request) {
+
+        Content content = new Content(
+                0L,
+                request.getTitle(),
+                request.getDescription(),
+                request.getUrl()
+        );
+        boolean replaced = service.replace(id, content);
         if (replaced) {
             return ResponseEntity.noContent().build();
         }

@@ -50,9 +50,16 @@ public class ProgressController {
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateProgress(
             @PathVariable Long id,
-            @RequestBody Progress request
-    ) {
-        boolean replaced = service.replace(id, request);
+            @RequestBody AddProgressRequest request) {
+
+        Progress progress = new Progress(
+                0L,
+                request.getUserId(),
+                request.getCourseCode(),
+                request.getProgressPercentage(),
+                request.getStatus()
+        );
+        boolean replaced = service.replace(id, progress);
         if (replaced) {
             return ResponseEntity.noContent().build();
         }

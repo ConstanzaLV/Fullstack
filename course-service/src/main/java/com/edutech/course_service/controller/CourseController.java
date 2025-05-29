@@ -50,9 +50,16 @@ public class CourseController {
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateCourse(
             @PathVariable Long id,
-            @RequestBody Course request
-    ) {
-        boolean replaced = service.replace(id, request);
+            @RequestBody Course request) {
+
+        Course course = new Course(
+                0L,
+                request.getCode(),
+                request.getCategory(),
+                request.getInstructor(),
+                request.getStatus()
+        );
+        boolean replaced = service.replace(id, course);
         if (replaced) {
             return ResponseEntity.noContent().build();
         }
