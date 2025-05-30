@@ -13,4 +13,6 @@ public class Course {
     private Long id;
     private String name;
     private String description;
+    private String courseCode;
+    private Long instructorId;
 }

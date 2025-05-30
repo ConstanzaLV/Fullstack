@@ -40,6 +40,8 @@ public class ProgressService {
         ProgressEntity existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Registro de progreso no encontrado con id: " + id));
         existing.setUserId(req.getUserId());
+        existing.setCourseId(req.getCourseId());
+        existing.setModuleId(req.getModuleId());
         existing.setPercentage(req.getPercentage());
         repository.save(existing);
     }

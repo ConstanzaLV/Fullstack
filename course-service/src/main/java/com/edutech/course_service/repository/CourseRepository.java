@@ -13,8 +13,8 @@ public class CourseRepository {
     private final List<CourseEntity> courses = new ArrayList<>();
 
     public CourseRepository() {
-        courses.add(new CourseEntity(1L, "Java Básico", "Introducción a Java"));
-        courses.add(new CourseEntity(2L, "Spring Boot", "Desarrollo con Spring Boot"));
+        courses.add(new CourseEntity(1L, "Java Básico", "Introducción a Java", "JAVA101", 1001L));
+        courses.add(new CourseEntity(2L, "Spring Boot", "Desarrollo con Spring Boot", "SPRING201", 1002L));
     }
 
     public List<CourseEntity> findAll() {

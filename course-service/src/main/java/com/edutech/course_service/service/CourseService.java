@@ -31,7 +31,8 @@ public class CourseService {
 
     public Course createCourse(AddCourseRequest req) {
         CourseEntity saved = repository.save(
-                new CourseEntity(null, req.getName(), req.getDescription())
+                new CourseEntity(null, req.getName(), req.getDescription(), req.getCourseCode(),
+                        req.getInstructorId())
         );
         return toDomain(saved);
     }
@@ -41,6 +42,8 @@ public class CourseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Curso no encontrado con id: " + id));
         existing.setName(req.getName());
         existing.setDescription(req.getDescription());
+        existing.setCourseCode(req.getCourseCode());
+        existing.setInstructorId(req.getInstructorId());
         repository.save(existing);
     }
 
@@ -51,6 +54,7 @@ public class CourseService {
     }
 
     private Course toDomain(CourseEntity e) {
-        return new Course(e.getId(), e.getName(), e.getDescription());
+        return new Course(e.getId(), e.getName(), e.getDescription(), e.getCourseCode(),
+                e.getInstructorId());
     }
 }
