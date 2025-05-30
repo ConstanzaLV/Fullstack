@@ -13,8 +13,8 @@ public class ProgressRepository {
     private final List<ProgressEntity> records = new ArrayList<>();
 
     public ProgressRepository() {
-        records.add(new ProgressEntity(1L, 10L, 50));
-        records.add(new ProgressEntity(2L, 20L, 75));
+        records.add(new ProgressEntity(1L, 10L, 100L,3L, 50));
+        records.add(new ProgressEntity(2L, 20L, 101L, 2L, 75));
     }
 
     public List<ProgressEntity> findAll() {

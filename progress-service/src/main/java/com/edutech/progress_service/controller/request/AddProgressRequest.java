@@ -14,7 +14,15 @@ public class AddProgressRequest {
     @Positive(message = "El ID del usuario debe ser un número positivo")
     private Long userId;
 
+    @Positive(message = "El ID del curso debe ser un número positivo")
+    private Long courseId;
+
+    @Positive(message = "El ID del módulo debe ser un número positivo")
+    private Long moduleId;
+
     @NotNull(message = "El porcentaje es obligatorio")
     @Positive(message = "El porcentaje debe ser un valor positivo")
     private Integer percentage;
+
+
 }

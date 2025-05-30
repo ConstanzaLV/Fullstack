@@ -31,7 +31,7 @@ public class ProgressService {
 
     public Progress createProgress(AddProgressRequest req) {
         ProgressEntity saved = repository.save(
-                new ProgressEntity(null, req.getUserId(), req.getPercentage())
+                new ProgressEntity(null, req.getUserId(), req.getCourseId(), req.getModuleId(), req.getPercentage())
         );
         return toDomain(saved);
     }
@@ -51,6 +51,6 @@ public class ProgressService {
     }
 
     private Progress toDomain(ProgressEntity e) {
-        return new Progress(e.getId(), e.getUserId(), e.getPercentage());
+        return new Progress(e.getId(), e.getUserId(), e.getCourseId(), e.getModuleId(), e.getPercentage());
     }
 }

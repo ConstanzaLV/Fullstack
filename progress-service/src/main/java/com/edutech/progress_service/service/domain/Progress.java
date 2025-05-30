@@ -12,5 +12,7 @@ import lombok.Setter;
 public class Progress {
     private Long id;
     private Long userId;
+    private Long courseId;
+    private Long moduleId;
     private Integer percentage;
 }
