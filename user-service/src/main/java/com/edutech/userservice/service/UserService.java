@@ -2,6 +2,7 @@ package com.edutech.userservice.service;
 
 import com.edutech.userservice.controller.request.AddUserRequest;
 import com.edutech.userservice.exception.ResourceNotFoundException;
+import com.edutech.userservice.exception.DuplicateResourceException;
 import com.edutech.userservice.repository.UserRepository;
 import com.edutech.userservice.repository.entity.UserEntity;
 import com.edutech.userservice.service.domain.User;
@@ -30,6 +31,11 @@ public class UserService {
     }
 
     public User createUser(AddUserRequest req) {
+        repository.findByEmail(req.getEmail()).ifPresent(u -> {
+            throw new DuplicateResourceException(
+                    "Ya existe un usuario con el correo: " + req.getEmail()
+            );
+        });
         UserEntity saved = repository.save(
                 new UserEntity(null, req.getName(), req.getEmail())
         );
@@ -53,4 +59,6 @@ public class UserService {
     private User toDomain(UserEntity e) {
         return new User(e.getId(), e.getName(), e.getEmail());
     }
+
+
 }

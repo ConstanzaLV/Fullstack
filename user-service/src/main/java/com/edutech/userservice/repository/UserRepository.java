@@ -45,4 +45,10 @@ public class UserRepository {
     public void delete(UserEntity entity) {
         users.removeIf(u -> u.getId().equals(entity.getId()));
     }
+
+    public Optional<UserEntity> findByEmail(String email) {
+        return users.stream()
+                .filter(u -> u.getEmail().equalsIgnoreCase(email))
+                .findFirst();
+    }
 }

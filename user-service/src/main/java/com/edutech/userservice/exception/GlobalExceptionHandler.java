@@ -31,4 +31,11 @@ public class GlobalExceptionHandler {
         ErrorResponse err = new ErrorResponse("INTERNAL_ERROR", "Ocurrió un error inesperado");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
     }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicate(DuplicateResourceException ex) {
+        ErrorResponse err = new ErrorResponse("CONFLICT", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(err);
+    }
+
 }
