@@ -1,20 +1,20 @@
 package com.edutech.content_service.controller.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class AddContentRequest {
-    @NotBlank
+    @NotBlank(message = "El título es obligatorio")
     private String title;
-    @NotBlank
+
+    @NotBlank(message = "La descripción es obligatoria")
     private String description;
-    @NotBlank
+
+    @NotBlank(message = "La URL es obligatoria")
     private String url;
 }

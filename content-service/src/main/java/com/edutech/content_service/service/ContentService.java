@@ -1,104 +1,57 @@
 package com.edutech.content_service.service;
 
+import com.edutech.content_service.controller.request.AddContentRequest;
+import com.edutech.content_service.exception.ResourceNotFoundException;
 import com.edutech.content_service.repository.ContentRepository;
 import com.edutech.content_service.repository.entity.ContentEntity;
 import com.edutech.content_service.service.domain.Content;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ContentService {
-    @Autowired private ContentRepository repository;
 
-    public List<Content> getContents() {
-        List<ContentEntity> entities = repository.getAll();
-        List<Content> result = new ArrayList<>();
-        for (ContentEntity entity : entities) {
-            result.add(
-                    new Content(
-                            entity.getId(),
-                            entity.getTitle(),
-                            entity.getDescription(),
-                            entity.getUrl()
-                    )
-            );
-        }
-        return result;
+    @Autowired
+    private ContentRepository repository;
+
+    public List<Content> getAllContents() {
+        return repository.findAll().stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
     }
 
-    public Content getContent(Long id) {
-        List<ContentEntity> entities = repository.getAll();
-        for (ContentEntity entity : entities) {
-            if (entity.getId().equals(id)) {
-                return new Content(
-                        entity.getId(),
-                        entity.getTitle(),
-                        entity.getDescription(),
-                        entity.getUrl()
-                );
-            }
-        }
-        return null;
+    public Content getContentById(Long id) {
+        ContentEntity entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Contenido no encontrado con id: " + id));
+        return toDomain(entity);
     }
 
-    public boolean save(Content content) {
-        ContentEntity existing = repository.getByTitleOrUrl(
-                content.getTitle(),
-                content.getUrl()
+    public Content createContent(AddContentRequest req) {
+        ContentEntity saved = repository.save(
+                new ContentEntity(null, req.getTitle(), req.getDescription(), req.getUrl())
         );
-        if (existing == null) {
-            ContentEntity entity = new ContentEntity(
-                    content.getId(),
-                    content.getTitle(),
-                    content.getDescription(),
-                    content.getUrl()
-            );
-            repository.save(entity);
-            content.setId(entity.getId());
-            return true;
-        }
-        return false;
+        return toDomain(saved);
     }
 
-    public boolean replace(Long id, Content content) {
-        ContentEntity found = null;
-        List<ContentEntity> entities = repository.getAll();
-        for (ContentEntity entity : entities) {
-            if (entity.getId().equals(id)) {
-                found = entity;
-                break;
-            }
-        }
-        if (found != null) {
-            ContentEntity updated = new ContentEntity(
-                    id,
-                    content.getTitle(),
-                    content.getDescription(),
-                    content.getUrl()
-            );
-            repository.replace(found, updated);
-            return true;
-        }
-        return false;
+    public void updateContent(Long id, AddContentRequest req) {
+        ContentEntity existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Contenido no encontrado con id: " + id));
+        existing.setTitle(req.getTitle());
+        existing.setDescription(req.getDescription());
+        existing.setUrl(req.getUrl());
+        repository.save(existing);
     }
 
-    public boolean delete(Long id) {
-        ContentEntity found = null;
-        List<ContentEntity> entities = repository.getAll();
-        for (ContentEntity entity : entities) {
-            if (entity.getId().equals(id)) {
-                found = entity;
-                break;
-            }
-        }
-        if (found != null) {
-            repository.delete(found);
-            return true;
-        }
-        return false;
+    public void deleteContent(Long id) {
+        ContentEntity existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Contenido no encontrado con id: " + id));
+        repository.delete(existing);
+    }
+
+    private Content toDomain(ContentEntity e) {
+        return new Content(e.getId(), e.getTitle(), e.getDescription(), e.getUrl());
     }
 }
-

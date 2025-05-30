@@ -5,44 +5,45 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class ContentRepository {
-    private final List<ContentEntity> contents;
+
+    private final List<ContentEntity> contents = new ArrayList<>();
 
     public ContentRepository() {
-        contents = new ArrayList<>();
-        contents.add(new ContentEntity(10L, "Introducción a Java", "Conceptos básicos de Java", "https://example.com/java-intro"));
-        contents.add(new ContentEntity(20L, "Guía de Spring Boot", "Tutorial rápido de Spring Boot", "https://example.com/spring-boot"));
-        contents.add(new ContentEntity(30L, "APIs REST con Spring", "Cómo crear APIs RESTful con Spring", "https://example.com/spring-rest"));
+        // Ejemplo de datos iniciales
+        contents.add(new ContentEntity(1L, "Intro Java", "Básicos de Java", "https://ex.com/java"));
+        contents.add(new ContentEntity(2L, "Spring Boot", "Tutorial Spring Boot", "https://ex.com/spring"));
     }
 
-    public List<ContentEntity> getAll() {
-        return contents;
+    public List<ContentEntity> findAll() {
+        return new ArrayList<>(contents);
     }
 
-
-    public void save(ContentEntity content) {
-        content.setId((contents.size() + 1)*10L);
-        contents.add(content);
+    public Optional<ContentEntity> findById(Long id) {
+        return contents.stream()
+                .filter(c -> c.getId().equals(id))
+                .findFirst();
     }
 
-    public void replace(ContentEntity found, ContentEntity newContent) {
-        int idx = contents.indexOf(found);
-        newContent.setId(found.getId());
-        contents.set(idx, newContent);
-    }
-
-    public void delete(ContentEntity found) {
-        contents.remove(found);
-    }
-
-    public ContentEntity getByTitleOrUrl(String title, String url) {
-        for (ContentEntity c : contents) {
-            if (c.getTitle().equals(title) || c.getUrl().equals(url)) {
-                return c;
-            }
+    public ContentEntity save(ContentEntity entity) {
+        if (entity.getId() == null) {
+            long nextId = contents.stream()
+                    .mapToLong(ContentEntity::getId)
+                    .max()
+                    .orElse(0L) + 1;
+            entity.setId(nextId);
+            contents.add(entity);
+        } else {
+            contents.removeIf(c -> c.getId().equals(entity.getId()));
+            contents.add(entity);
         }
-        return null;
+        return entity;
+    }
+
+    public void delete(ContentEntity entity) {
+        contents.removeIf(c -> c.getId().equals(entity.getId()));
     }
 }
