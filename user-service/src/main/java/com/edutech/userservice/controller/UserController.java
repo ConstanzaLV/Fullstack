@@ -6,7 +6,6 @@ import com.edutech.userservice.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,57 +13,36 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+
     @Autowired
     private UserService service;
 
     @GetMapping
-    public List<User> getUsers() {
-        return service.getUsers();
+    public List<User> getAll() {
+        return service.getAllUsers();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Long id) {
-        User found = service.getUser(id);
-        if (found != null) {
-            return ResponseEntity.ok(found);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public User getById(@PathVariable Long id) {
+        return service.getUserById(id);
     }
 
     @PostMapping
-    public ResponseEntity<Void> addUser(@Valid @RequestBody AddUserRequest request) {
-        User user = new User(
-                0L,
-                request.getUsername(),
-                request.getEmail(),
-                request.getRole(),
-                request.getStatus()
-        );
-        boolean saved = service.save(user);
-        if (saved) {
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    @ResponseStatus(HttpStatus.CREATED)
+    public User create(@Valid @RequestBody AddUserRequest req) {
+        return service.createUser(req);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateUser(
-            @PathVariable Long id,
-            @RequestBody User request
-    ) {
-        boolean replaced = service.replace(id, request);
-        if (replaced) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void update(@PathVariable Long id,
+                       @Valid @RequestBody AddUserRequest req) {
+        service.updateUser(id, req);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        boolean deleted = service.delete(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        service.deleteUser(id);
     }
 }

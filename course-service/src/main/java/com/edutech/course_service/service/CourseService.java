@@ -1,103 +1,56 @@
 package com.edutech.course_service.service;
 
+import com.edutech.course_service.controller.request.AddCourseRequest;
+import com.edutech.course_service.exception.ResourceNotFoundException;
 import com.edutech.course_service.repository.CourseRepository;
 import com.edutech.course_service.repository.entity.CourseEntity;
 import com.edutech.course_service.service.domain.Course;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseService {
+
     @Autowired
     private CourseRepository repository;
 
-    public List<Course> getCourses() {
-        List<CourseEntity> entities = repository.getAll();
-        List<Course> result = new ArrayList<>();
-        for (CourseEntity e : entities) {
-            result.add(new Course(
-                    e.getId(),
-                    e.getCode(),
-                    e.getCategory(),
-                    e.getInstructor(),
-                    e.getStatus()
-            ));
-        }
-        return result;
+    public List<Course> getAllCourses() {
+        return repository.findAll().stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
     }
 
-    public Course getCourse(Long id) {
-        for (CourseEntity e : repository.getAll()) {
-            if (e.getId().equals(id)) {
-                return new Course(
-                        e.getId(),
-                        e.getCode(),
-                        e.getCategory(),
-                        e.getInstructor(),
-                        e.getStatus()
-                );
-            }
-        }
-        return null;
+    public Course getCourseById(Long id) {
+        CourseEntity entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Curso no encontrado con id: " + id));
+        return toDomain(entity);
     }
 
-    public boolean save(Course course) {
-        CourseEntity existing = repository.getByCodeOrInstructor(
-                course.getCode(),
-                course.getInstructor()
+    public Course createCourse(AddCourseRequest req) {
+        CourseEntity saved = repository.save(
+                new CourseEntity(null, req.getName(), req.getDescription())
         );
-        if (existing == null) {
-            CourseEntity e = new CourseEntity(
-                    course.getId(),
-                    course.getCode(),
-                    course.getCategory(),
-                    course.getInstructor(),
-                    course.getStatus()
-            );
-            repository.save(e);
-            course.setId(e.getId());
-            return true;
-        }
-        return false;
+        return toDomain(saved);
     }
 
-    public boolean replace(Long id, Course course) {
-        CourseEntity found = null;
-        for (CourseEntity e : repository.getAll()) {
-            if (e.getId().equals(id)) {
-                found = e;
-                break;
-            }
-        }
-        if (found != null) {
-            CourseEntity updated = new CourseEntity(
-                    id,
-                    course.getCode(),
-                    course.getCategory(),
-                    course.getInstructor(),
-                    course.getStatus()
-            );
-            repository.replace(found, updated);
-            return true;
-        }
-        return false;
+    public void updateCourse(Long id, AddCourseRequest req) {
+        CourseEntity existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Curso no encontrado con id: " + id));
+        existing.setName(req.getName());
+        existing.setDescription(req.getDescription());
+        repository.save(existing);
     }
 
-    public boolean delete(Long id) {
-        CourseEntity found = null;
-        for (CourseEntity e : repository.getAll()) {
-            if (e.getId().equals(id)) {
-                found = e;
-                break;
-            }
-        }
-        if (found != null) {
-            repository.delete(found);
-            return true;
-        }
-        return false;
+    public void deleteCourse(Long id) {
+        CourseEntity existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Curso no encontrado con id: " + id));
+        repository.delete(existing);
+    }
+
+    private Course toDomain(CourseEntity e) {
+        return new Course(e.getId(), e.getName(), e.getDescription());
     }
 }

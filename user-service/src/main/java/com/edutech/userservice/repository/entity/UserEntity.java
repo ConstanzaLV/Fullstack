@@ -7,12 +7,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserEntity {
     private Long id;
-    private String username;
+    private String name;
     private String email;
-    private String role;
-    private String status;
 }

@@ -13,7 +13,6 @@ public class ContentRepository {
     private final List<ContentEntity> contents = new ArrayList<>();
 
     public ContentRepository() {
-        // Ejemplo de datos iniciales
         contents.add(new ContentEntity(1L, "Intro Java", "Básicos de Java", "https://ex.com/java"));
         contents.add(new ContentEntity(2L, "Spring Boot", "Tutorial Spring Boot", "https://ex.com/spring"));
     }

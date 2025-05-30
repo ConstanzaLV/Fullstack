@@ -5,43 +5,44 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class ProgressRepository {
-    private final List<ProgressEntity> progresses;
+
+    private final List<ProgressEntity> records = new ArrayList<>();
 
     public ProgressRepository() {
-        progresses = new ArrayList<>();
-        // ejemplos precargados
-        progresses.add(new ProgressEntity(10L, "user1", "CS101", 20, "IN_PROGRESS"));
-        progresses.add(new ProgressEntity(20L, "user2", "SB202", 100, "COMPLETED"));
+        records.add(new ProgressEntity(1L, 10L, 50));
+        records.add(new ProgressEntity(2L, 20L, 75));
     }
 
-    public List<ProgressEntity> getAll() {
-        return progresses;
+    public List<ProgressEntity> findAll() {
+        return new ArrayList<>(records);
     }
 
-    public void save(ProgressEntity p) {
-        p.setId((progresses.size() + 1) * 10L);
-        progresses.add(p);
+    public Optional<ProgressEntity> findById(Long id) {
+        return records.stream()
+                .filter(r -> r.getId().equals(id))
+                .findFirst();
     }
 
-    public void replace(ProgressEntity found, ProgressEntity updated) {
-        int idx = progresses.indexOf(found);
-        updated.setId(found.getId());
-        progresses.set(idx, updated);
-    }
-
-    public void delete(ProgressEntity found) {
-        progresses.remove(found);
-    }
-
-    public ProgressEntity getByUserAndCourse(String userId, String courseCode) {
-        for (ProgressEntity p : progresses) {
-            if (p.getUserId().equals(userId) && p.getCourseCode().equals(courseCode)) {
-                return p;
-            }
+    public ProgressEntity save(ProgressEntity entity) {
+        if (entity.getId() == null) {
+            long nextId = records.stream()
+                    .mapToLong(ProgressEntity::getId)
+                    .max()
+                    .orElse(0L) + 1;
+            entity.setId(nextId);
+            records.add(entity);
+        } else {
+            records.removeIf(r -> r.getId().equals(entity.getId()));
+            records.add(entity);
         }
-        return null;
+        return entity;
+    }
+
+    public void delete(ProgressEntity entity) {
+        records.removeIf(r -> r.getId().equals(entity.getId()));
     }
 }

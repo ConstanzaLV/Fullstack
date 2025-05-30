@@ -1,25 +1,20 @@
 package com.edutech.progress_service.controller.request;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class AddProgressRequest {
-    @NotBlank
-    private String userId;
-    @NotBlank
-    private String courseCode;
-    @NotNull
-    @Min(0)
-    private Integer progressPercentage;
-    @NotBlank
-    private String status;
+    @NotNull(message = "El ID del usuario es obligatorio")
+    @Positive(message = "El ID del usuario debe ser un número positivo")
+    private Long userId;
+
+    @NotNull(message = "El porcentaje es obligatorio")
+    @Positive(message = "El porcentaje debe ser un valor positivo")
+    private Integer percentage;
 }

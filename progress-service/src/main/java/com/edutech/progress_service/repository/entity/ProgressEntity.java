@@ -7,12 +7,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class ProgressEntity {
     private Long id;
-    private String userId;
-    private String courseCode;
-    private Integer progressPercentage;
-    private String status;
+    private Long userId;
+    private Integer percentage;
 }

@@ -6,7 +6,6 @@ import com.edutech.progress_service.service.ProgressService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,63 +13,36 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/progress")
 public class ProgressController {
+
     @Autowired
     private ProgressService service;
 
     @GetMapping
-    public List<Progress> getProgress() {
-        return service.getProgresses();
+    public List<Progress> getAll() {
+        return service.getAllProgressRecords();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Progress> getProgress(@PathVariable Long id) {
-        Progress found = service.getProgress(id);
-        if (found != null) {
-            return ResponseEntity.ok(found);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public Progress getById(@PathVariable Long id) {
+        return service.getProgressById(id);
     }
 
     @PostMapping
-    public ResponseEntity<Void> addProgress(@Valid @RequestBody AddProgressRequest request) {
-        Progress progress = new Progress(
-                0L,
-                request.getUserId(),
-                request.getCourseCode(),
-                request.getProgressPercentage(),
-                request.getStatus()
-        );
-        boolean saved = service.save(progress);
-        if (saved) {
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    @ResponseStatus(HttpStatus.CREATED)
+    public Progress create(@Valid @RequestBody AddProgressRequest req) {
+        return service.createProgress(req);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateProgress(
-            @PathVariable Long id,
-            @RequestBody AddProgressRequest request) {
-
-        Progress progress = new Progress(
-                0L,
-                request.getUserId(),
-                request.getCourseCode(),
-                request.getProgressPercentage(),
-                request.getStatus()
-        );
-        boolean replaced = service.replace(id, progress);
-        if (replaced) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void update(@PathVariable Long id,
+                       @Valid @RequestBody AddProgressRequest req) {
+        service.updateProgress(id, req);
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProgress(@PathVariable Long id) {
-        boolean deleted = service.delete(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        service.deleteProgress(id);
     }
 }

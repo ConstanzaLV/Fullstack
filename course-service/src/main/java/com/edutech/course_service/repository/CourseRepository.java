@@ -5,43 +5,44 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class CourseRepository {
-    private final List<CourseEntity> courses;
+
+    private final List<CourseEntity> courses = new ArrayList<>();
 
     public CourseRepository() {
-        courses = new ArrayList<>();
-        courses.add(new CourseEntity(10L, "CS101", "Programming", "Alicia Rojas", "ARCHIVED"));
-        courses.add(new CourseEntity(20L, "SB202", "Spring Boot", "Carlos Hernandez", "PUBLISHED"));
-        courses.add(new CourseEntity(30L, "API303", "APIs", "Carolina Muñoz", "ARCHIVED"));
+        courses.add(new CourseEntity(1L, "Java Básico", "Introducción a Java"));
+        courses.add(new CourseEntity(2L, "Spring Boot", "Desarrollo con Spring Boot"));
     }
 
-    public List<CourseEntity> getAll() {
-        return courses;
+    public List<CourseEntity> findAll() {
+        return new ArrayList<>(courses);
     }
 
-    public void save(CourseEntity course) {
-        course.setId((courses.size() + 1) * 10L);
-        courses.add(course);
+    public Optional<CourseEntity> findById(Long id) {
+        return courses.stream()
+                .filter(c -> c.getId().equals(id))
+                .findFirst();
     }
 
-    public void replace(CourseEntity found, CourseEntity updated) {
-        int idx = courses.indexOf(found);
-        updated.setId(found.getId());
-        courses.set(idx, updated);
-    }
-
-    public void delete(CourseEntity found) {
-        courses.remove(found);
-    }
-
-    public CourseEntity getByCodeOrInstructor(String code, String instructor) {
-        for (CourseEntity c : courses) {
-            if (c.getCode().equals(code) || c.getInstructor().equals(instructor)) {
-                return c;
-            }
+    public CourseEntity save(CourseEntity entity) {
+        if (entity.getId() == null) {
+            long nextId = courses.stream()
+                    .mapToLong(CourseEntity::getId)
+                    .max()
+                    .orElse(0L) + 1;
+            entity.setId(nextId);
+            courses.add(entity);
+        } else {
+            courses.removeIf(c -> c.getId().equals(entity.getId()));
+            courses.add(entity);
         }
-        return null;
+        return entity;
+    }
+
+    public void delete(CourseEntity entity) {
+        courses.removeIf(c -> c.getId().equals(entity.getId()));
     }
 }

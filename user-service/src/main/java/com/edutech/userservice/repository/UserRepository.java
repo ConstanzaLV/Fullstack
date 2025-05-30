@@ -5,43 +5,44 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class UserRepository {
-    private final List<UserEntity> users;
+
+    private final List<UserEntity> users = new ArrayList<>();
 
     public UserRepository() {
-        users = new ArrayList<>();
-        users.add(new UserEntity(10L, "alice", "alice@example.com", "ADMIN",   "ACTIVE"));
-        users.add(new UserEntity(20L, "bob",   "bob@example.com",   "STUDENT", "ACTIVE"));
-        users.add(new UserEntity(30L, "carol", "carol@example.com", "STUDENT", "INACTIVE"));
+        users.add(new UserEntity(1L, "Alice", "alice@example.com"));
+        users.add(new UserEntity(2L, "Bob",   "bob@example.com"));
     }
 
-    public List<UserEntity> getAll() {
-        return users;
+    public List<UserEntity> findAll() {
+        return new ArrayList<>(users);
     }
 
-    public void save(UserEntity user) {
-        user.setId((users.size() + 1) * 10L);
-        users.add(user);
+    public Optional<UserEntity> findById(Long id) {
+        return users.stream()
+                .filter(u -> u.getId().equals(id))
+                .findFirst();
     }
 
-    public void replace(UserEntity found, UserEntity updated) {
-        int idx = users.indexOf(found);
-        updated.setId(found.getId());
-        users.set(idx, updated);
-    }
-
-    public void delete(UserEntity found) {
-        users.remove(found);
-    }
-
-    public UserEntity getByUsernameOrEmail(String username, String email) {
-        for (UserEntity u : users) {
-            if (u.getUsername().equalsIgnoreCase(username) || u.getEmail().equalsIgnoreCase(email)) {
-                return u;
-            }
+    public UserEntity save(UserEntity entity) {
+        if (entity.getId() == null) {
+            long next = users.stream()
+                    .mapToLong(UserEntity::getId)
+                    .max()
+                    .orElse(0L) + 1;
+            entity.setId(next);
+            users.add(entity);
+        } else {
+            users.removeIf(u -> u.getId().equals(entity.getId()));
+            users.add(entity);
         }
-        return null;
+        return entity;
+    }
+
+    public void delete(UserEntity entity) {
+        users.removeIf(u -> u.getId().equals(entity.getId()));
     }
 }

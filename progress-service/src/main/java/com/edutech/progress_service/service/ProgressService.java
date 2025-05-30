@@ -1,99 +1,56 @@
 package com.edutech.progress_service.service;
 
+import com.edutech.progress_service.controller.request.AddProgressRequest;
+import com.edutech.progress_service.exception.ResourceNotFoundException;
 import com.edutech.progress_service.repository.ProgressRepository;
 import com.edutech.progress_service.repository.entity.ProgressEntity;
 import com.edutech.progress_service.service.domain.Progress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProgressService {
+
     @Autowired
     private ProgressRepository repository;
 
-    public List<Progress> getProgresses() {
-        List<Progress> result = new ArrayList<>();
-        for (ProgressEntity e : repository.getAll()) {
-            result.add(new Progress(
-                    e.getId(),
-                    e.getUserId(),
-                    e.getCourseCode(),
-                    e.getProgressPercentage(),
-                    e.getStatus()
-            ));
-        }
-        return result;
+    public List<Progress> getAllProgressRecords() {
+        return repository.findAll().stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
     }
 
-    public Progress getProgress(Long id) {
-        for (ProgressEntity e : repository.getAll()) {
-            if (e.getId().equals(id)) {
-                return new Progress(
-                        e.getId(),
-                        e.getUserId(),
-                        e.getCourseCode(),
-                        e.getProgressPercentage(),
-                        e.getStatus()
-                );
-            }
-        }
-        return null;
+    public Progress getProgressById(Long id) {
+        ProgressEntity entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Registro de progreso no encontrado con id: " + id));
+        return toDomain(entity);
     }
 
-    public boolean save(Progress p) {
-        ProgressEntity existing = repository.getByUserAndCourse(p.getUserId(), p.getCourseCode());
-        if (existing == null) {
-            ProgressEntity e = new ProgressEntity(
-                    p.getId(),
-                    p.getUserId(),
-                    p.getCourseCode(),
-                    p.getProgressPercentage(),
-                    p.getStatus()
-            );
-            repository.save(e);
-            p.setId(e.getId());
-            return true;
-        }
-        return false;
+    public Progress createProgress(AddProgressRequest req) {
+        ProgressEntity saved = repository.save(
+                new ProgressEntity(null, req.getUserId(), req.getPercentage())
+        );
+        return toDomain(saved);
     }
 
-    public boolean replace(Long id, Progress p) {
-        ProgressEntity found = null;
-        for (ProgressEntity e : repository.getAll()) {
-            if (e.getId().equals(id)) {
-                found = e;
-                break;
-            }
-        }
-        if (found != null) {
-            ProgressEntity updated = new ProgressEntity(
-                    id,
-                    p.getUserId(),
-                    p.getCourseCode(),
-                    p.getProgressPercentage(),
-                    p.getStatus()
-            );
-            repository.replace(found, updated);
-            return true;
-        }
-        return false;
+    public void updateProgress(Long id, AddProgressRequest req) {
+        ProgressEntity existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Registro de progreso no encontrado con id: " + id));
+        existing.setUserId(req.getUserId());
+        existing.setPercentage(req.getPercentage());
+        repository.save(existing);
     }
 
-    public boolean delete(Long id) {
-        ProgressEntity found = null;
-        for (ProgressEntity e : repository.getAll()) {
-            if (e.getId().equals(id)) {
-                found = e;
-                break;
-            }
-        }
-        if (found != null) {
-            repository.delete(found);
-            return true;
-        }
-        return false;
+    public void deleteProgress(Long id) {
+        ProgressEntity existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Registro de progreso no encontrado con id: " + id));
+        repository.delete(existing);
+    }
+
+    private Progress toDomain(ProgressEntity e) {
+        return new Progress(e.getId(), e.getUserId(), e.getPercentage());
     }
 }

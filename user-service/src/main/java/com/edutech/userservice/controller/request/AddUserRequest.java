@@ -2,26 +2,18 @@ package com.edutech.userservice.controller.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class AddUserRequest {
-    @NotBlank
-    private String username;
+    @NotBlank(message = "El nombre es obligatorio")
+    private String name;
 
-    @Email
-    @NotBlank
+    @NotBlank(message = "El correo es obligatorio")
+    @Email(message = "El correo debe tener un formato válido")
     private String email;
-
-    @NotBlank
-    private String role;
-
-    @NotBlank
-    private String status;
 }

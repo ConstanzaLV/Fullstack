@@ -7,12 +7,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class CourseEntity {
     private Long id;
-    private String code;
-    private String category;
-    private String instructor;
-    private String status;
+    private String name;
+    private String description;
 }
